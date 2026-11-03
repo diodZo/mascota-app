@@ -3,12 +3,15 @@
 #include "../platforms/desktop/renderer.hpp"
 #include "../platforms/desktop/file_store.hpp"
 #include <chrono>
+#include "../platforms/desktop/form_resources.hpp"
+#include "../platforms/desktop/profiles.hpp"
+#include <set>
 #include <fstream>
 #include <iostream>
 void verify(bool ok,int line){if(!ok)throw std::runtime_error("Asset test failed at line "+std::to_string(line));}
 #define check(condition) verify((condition),__LINE__)
 int wmain(int argc,wchar_t** argv){
- if(argc!=2)return 2;HRESULT hr=CoInitializeEx(nullptr,COINIT_APARTMENTTHREADED);if(FAILED(hr))return 3;int code=0;
+ if(argc!=2&&argc!=3)return 2;HRESULT hr=CoInitializeEx(nullptr,COINIT_APARTMENTTHREADED);if(FAILED(hr))return 3;int code=0;
  try{
   std::filesystem::path root=argv[1];auto load=[&](const char* file){std::ifstream in(root/"assets/characters/pato_conejo/baby/placeholder"/file);return pet::Library::load(in);};
   auto sheet=load("pet.anim"),individual=load("individual.anim");desktop::SpriteStore store(root);store.preload(sheet);store.preload(individual);
@@ -23,7 +26,19 @@ int wmain(int argc,wchar_t** argv){
   }
   auto unique=std::to_string(GetCurrentProcessId())+"-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());auto path=root/"build/persistence-tests"/unique/"pet.json";desktop::FileStore storage(path);check(!storage.load(model.config()).snapshot);auto snapshot=model.snapshot(1234);storage.save(snapshot,model.config());auto loaded=storage.load(model.config());check(loaded.snapshot->stats==snapshot.stats&&!loaded.recovered);model.activate(0);auto updated=model.snapshot(1240);storage.save(updated,model.config());check(storage.load(model.config()).snapshot->savedAt==1240);{std::ofstream broken(path);broken<<"corrupt";}loaded=storage.load(model.config());check(loaded.recovered&&loaded.snapshot->savedAt==1234);storage.save(updated,model.config());check(!storage.load(model.config()).recovered);
   {std::ofstream broken(path);broken<<"corrupt";std::ofstream backup(path.wstring()+L".bak");backup<<"corrupt";}bool refused=false;try{storage.load(model.config());}catch(const std::exception&){refused=true;}check(refused);
+  // Migration and backup preservation use isolated fixtures, never the user's save.
+  const std::string legacy=R"({"version":1,"name":"NUBE","stage":1,"stats":[12,34,56,78,90],"last_action":3,"saved_at":12345,"sleeping":true})";
+  auto legacyPath=path.parent_path()/"legacy.json";{std::ofstream old(legacyPath);old<<legacy;}desktop::FileStore migrating(legacyPath);auto v1=migrating.load(model.config());check(v1.snapshot&&v1.snapshot->sourceVersion==1);migrating.save(*v1.snapshot,model.config());auto v2=migrating.load(model.config());check(v2.snapshot->sourceVersion==2&&v2.snapshot->stats==v1.snapshot->stats&&v2.snapshot->name=="NUBE"&&v2.snapshot->sleeping);migrating.save(*v2.snapshot,model.config());{std::ifstream old(legacyPath.wstring()+L".v1");std::string text((std::istreambuf_iterator<char>(old)),{});check(text==legacy);}
+  auto recoveryPath=path.parent_path()/"legacy-recovery.json";{std::ofstream bad(recoveryPath);bad<<"bad";std::ofstream good(recoveryPath.wstring()+L".bak");good<<legacy;}desktop::FileStore recovering(recoveryPath);auto recovered=recovering.load(model.config());check(recovered.recovered);recovering.save(*recovered.snapshot,model.config());check(std::filesystem::exists(recoveryPath.wstring()+L".v1")&&std::filesystem::exists(recoveryPath.wstring()+L".invalid"));
+  desktop::Profiles profiles(path.parent_path()/"profiles");auto original=profiles.active();auto next=profiles.next();check(original!=next);desktop::FileStore newPet(next);newPet.save(snapshot,model.config());profiles.remember(next);check(profiles.active()==next&&profiles.next()!=next&&!std::filesystem::exists(original));newPet.save(snapshot,model.config());std::filesystem::rename(next,next.wstring()+L".held");check(profiles.active()==next&&newPet.load(model.config()).recovered);
+  desktop::SpriteStore formsStore(root);auto forms=desktop::FormResources::load(root,formsStore);check(forms.library.all().size()==pet::evolution::Catalog.size()*24+6);pet::Model allForms(forms.library);std::set<uint64_t> hashes;
+  for(const auto& species:pet::evolution::Catalog)for(unsigned stage=1;stage<=4;++stage){auto state=allForms.snapshot(0);state.species=species.id;state.stage=stage;allForms.restore(state);auto f=allForms.sprite();check(f.image.find(std::string(species.key)+"/stage_0"+std::to_string(stage))!=std::string::npos);desktop::rect(a,0,0,64,64,RGB(0,0,0));f.dx=f.dy=0;formsStore.draw(a,f,0,0,false);uint64_t hash=1469598103934665603ULL;for(int yy=0;yy<64;++yy)for(int xx=0;xx<64;++xx)hash=(hash^GetPixel(a,xx,yy))*1099511628211ULL;hashes.insert(hash);desktop::Renderer renderer(formsStore);renderer.render(allForms);}
+  check(hashes.size()==20);
+  for(auto setupStep:{0,1,2}){allForms.beginSetup();if(setupStep>0)allForms.press(pet::Button::Accept);if(setupStep>1)allForms.press(pet::Button::Accept);desktop::Renderer renderer(formsStore);renderer.render(allForms);}
+  auto emptyRoot=path.parent_path()/"no-assets";std::filesystem::create_directories(emptyRoot/"assets/characters/pato_conejo/stage_01");{std::ofstream malformed(emptyRoot/"assets/characters/pato_conejo/stage_01/pet.anim");malformed<<"bad";}desktop::SpriteStore emptyStore(emptyRoot);auto missing=desktop::FormResources::load(emptyRoot,emptyStore);check(!missing.missing.empty());pet::Model emergency(missing.library);check(emergency.sprite().image.empty());{desktop::Renderer renderer(emptyStore);renderer.render(emergency);}
+  pet::evolution::Settings fast;fast.rules.thresholds={{{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0}}};pet::Model animated(forms.library,model.config(),fast);animated.tick(0);auto previousImage=animated.sprite().image;{desktop::Renderer renderer(formsStore);renderer.render(animated);animated.tick(1500);check(animated.sprite().image!=previousImage);renderer.render(animated);animated.tick(2000);check(animated.screen()==pet::Screen::Room);}
+  if(argc==3){desktop::FileStore actual(argv[2]);auto actualSave=actual.load(model.config());check(bool(actualSave.snapshot));pet::Model restoredActual(forms.library,model.config());restoredActual.restore(*actualSave.snapshot);auto comparison=restoredActual.snapshot(actualSave.snapshot->savedAt);check(comparison.species==actualSave.snapshot->species&&comparison.stage==actualSave.snapshot->stage&&comparison.experience==actualSave.snapshot->experience&&comparison.stats==actualSave.snapshot->stats&&comparison.name==actualSave.snapshot->name&&comparison.sleeping==actualSave.snapshot->sleeping);std::cout<<"RESTORE CHECK: "<<pet::evolution::speciesInfo(comparison.species).key<<" stage="<<comparison.stage<<" XP="<<comparison.experience<<"; name, stats and sleep preserved (read-only source)\n";}
   SelectObject(a,olda);SelectObject(b,oldb);DeleteObject(ba);DeleteObject(bb);DeleteDC(a);DeleteDC(b);
-  std::cout<<"PASS: actual PNG load, atlas/individual pixel equivalence, alpha, horizontal flip, invalid crop, 240x240 renderer, panels, changed animation pixels, 3x presentation, file save/reload and backup recovery\n";
+  std::cout<<"PASS: actual PNG load, atlas/individual pixel equivalence, alpha, horizontal flip, invalid crop, 240x240 renderer, panels, changed animation pixels, 3x presentation, file save/reload, v1 migration/immutable copy, profile preservation, 20 distinct forms, missing/corrupt sprite fallback and evolution effect\n";
  }catch(const std::exception& e){std::cerr<<e.what()<<'\n';code=1;}CoUninitialize();return code;
 }

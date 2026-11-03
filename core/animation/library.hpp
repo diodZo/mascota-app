@@ -18,6 +18,7 @@ class Library {
  std::vector<Animation> clips_;
 public:
  void add(Animation a){Player::validate(a.clip());if(a.name.empty()||std::any_of(clips_.begin(),clips_.end(),[&](const Animation& c){return c.name==a.name;}))throw std::runtime_error("Duplicate or empty animation name");clips_.push_back(std::move(a));}
+ const Animation* find(const std::string& name)const{for(const auto& c:clips_)if(c.name==name)return &c;return nullptr;}
  const Animation& get(const std::string& name)const{for(const auto& c:clips_)if(c.name==name)return c;throw std::runtime_error("Missing animation: "+name);}
  const std::vector<Animation>& all()const{return clips_;}
  static Library load(std::istream& in){
@@ -46,6 +47,6 @@ public:
  unsigned frame()const{return player_.frame();}
 };
 inline Library defaultLibrary(){
- Library l;for(const auto& name:{"idle","happy","walk","sad","sleep"}){Animation a;a.name=name;a.fps= name==std::string("sleep")?1:name==std::string("sad")?2:name==std::string("idle")?4:8;a.loop=name!=std::string("happy");unsigned count=name==std::string("idle")?16: name==std::string("happy")?6:name==std::string("sleep")?2:name==std::string("sad")?3:4;for(unsigned i=0;i<count;++i){SpriteFrame f;f.image="placeholder.png";f.x=int(i)*64;a.frames.push_back(f);}l.add(a);}return l;
+ Library l;for(const auto& name:{"idle","happy","walk","sad","sleep","eat"}){Animation a;a.name=name;a.fps= name==std::string("sleep")?1:name==std::string("sad")?2:name==std::string("idle")?4:8;a.loop=name!=std::string("happy")&&name!=std::string("eat");unsigned count=name==std::string("idle")?16: name==std::string("happy")?6:name==std::string("sleep")?2:name==std::string("sad")?3:4;for(unsigned i=0;i<count;++i){SpriteFrame f;f.image="placeholder.png";f.x=int(i)*64;a.frames.push_back(f);}l.add(a);}return l;
 }
 }

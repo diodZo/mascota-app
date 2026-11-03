@@ -1,0 +1,7 @@
+# Auditoría Misión 4
+
+2026-11-03. Rama existente feature/mision-4-evoluciones. Git mostraba únicamente tres archivos nuevos del usuario: core/evolution/catalog.hpp, tests/evolution_tests.cpp y docs/mision-4-base.md. Se revisaron completos antes de ampliarlos; no hay cambios seguidos pendientes ni AGENTS.md encontrado. El módulo del usuario define cinco especies/cuatro etapas y pruebas independientes; aún no se conectaba con Model ni almacenamiento. Se conserva su API y se amplían requisitos, configuración y pruebas. No se modifica docs/mision-4-base.md, que describe la base histórica.
+
+GDI/WIC, buffer 240x240 y presentación 3x. Model controla seis cuidados y cinco necesidades; biblioteca de clips desacoplada. JSON v1 acepta sólo bebé; FileStore conserva respaldo y reemplaza con archivo temporal. Hay una partida y respaldo existentes: no se usan como fixtures ni se modifican durante las pruebas. Riesgos: migración destructiva, reemplazar biblioteca mientras AnimationManager conserva referencias, pérdida de cuadros finales, abuso de XP y saltos de etapa en ticks grandes. Mitigaciones: migración explícita validada y copia v1 permanente; banco de clips estable con claves de forma; fallback por clip; premios por mejora y cooldown persistido; una transición por actualización con efecto que bloquea acciones.
+
+Se integra directamente aquí, sin proyecto paralelo ni ZIP. Build/saves y temporales permanecen ignorados; no se publica ni hace merge.

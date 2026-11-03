@@ -35,6 +35,6 @@ int main(){
  auto saved=timed.snapshot(123456);saved.name="NUBE";std::istringstream json(pet::encode(saved,timed.config()));auto decoded=pet::SnapshotReader(json).read(timed.config());check(decoded.name=="NUBE"&&decoded.savedAt==123456&&decoded.lastAction==3&&decoded.stats==saved.stats);pet::Model restored;restored.restore(decoded);check(restored.name()=="NUBE"&&restored.stats().values==saved.stats);
  saved.sleeping=true;std::istringstream asleepJson(pet::encode(saved,timed.config()));auto asleep=pet::SnapshotReader(asleepJson).read(timed.config());check(asleep.sleeping);restored.restore(asleep);check(restored.state()=="sleep");
  auto encoded=pet::encode(saved,timed.config());for(const auto& bad:{encoded.substr(0,encoded.size()/2),std::string("{}"),encoded+"trailing"})rejects([&]{std::istringstream input(bad);pet::SnapshotReader(input).read(timed.config());});
- auto invalid=encoded;invalid.replace(invalid.find("\"version\": 1"),12,"\"version\": 9");rejects([&]{std::istringstream input(invalid);pet::SnapshotReader(input).read(timed.config());});
+ auto invalid=encoded;invalid.replace(invalid.find("\"version\": 2"),12,"\"version\": 9");rejects([&]{std::istringstream input(invalid);pet::SnapshotReader(input).read(timed.config());});
  std::cout<<"PASS: animation regressions, six actions, stats and bounds, sleep/recovery, sad/happy/walk, panels, config, JSON round-trip, invalid saves, deterministic time\n";
 }

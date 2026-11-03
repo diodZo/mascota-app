@@ -32,7 +32,7 @@ class SpriteStore {
  }
 public:
  explicit SpriteStore(std::filesystem::path root):root_(std::move(root)){require(CoCreateInstance(CLSID_WICImagingFactory,nullptr,CLSCTX_INPROC_SERVER,IID_PPV_ARGS(&factory_)),"Cannot initialize Windows image decoder");}
- void preload(const pet::Library& library){for(const auto& clip:library.all())for(const auto& f:clip.frames){auto& image=load(f.image);if(f.x>image.width-f.width||f.y>image.height-f.height)throw std::runtime_error("Frame outside sprite sheet");}}
+ void preload(const pet::Library& library){for(const auto& clip:library.all())for(const auto& f:clip.frames){if(f.image.empty())continue;auto& image=load(f.image);if(f.x>image.width-f.width||f.y>image.height-f.height)throw std::runtime_error("Frame outside sprite sheet");}}
  void draw(HDC target,const pet::SpriteFrame& f,int x,int y,bool mirror){auto& image=load(f.image);auto dc=CreateCompatibleDC(target);if(!dc)throw std::runtime_error("Cannot create sprite DC");auto previous=SelectObject(dc,mirror?image.mirror:image.normal);BLENDFUNCTION blend{AC_SRC_OVER,0,255,AC_SRC_ALPHA};BOOL ok=AlphaBlend(target,x+(mirror?-f.dx:f.dx),y+f.dy,64,64,dc,mirror?image.width-f.x-64:f.x,f.y,64,64,blend);SelectObject(dc,previous);DeleteDC(dc);if(!ok)throw std::runtime_error("Cannot blend sprite");}
 };
 }

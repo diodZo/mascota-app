@@ -24,7 +24,12 @@ public:
  }
  void save(const pet::Snapshot& snapshot,const pet::Config& config)override{
   const auto text=pet::encode(snapshot,config);if(!path_.parent_path().empty())std::filesystem::create_directories(path_.parent_path());auto temp=suffix(path_,L".tmp");write(temp,text);
-  bool valid=false;if(std::filesystem::exists(path_))try{read(path_,config);valid=true;}catch(const std::exception&){}
+  bool valid=false;unsigned oldVersion=0;if(std::filesystem::exists(path_))try{oldVersion=read(path_,config).sourceVersion;valid=true;}catch(const std::exception&){}
+  // Keep an immutable v1 copy even when recovery used the rolling backup.
+  auto legacy=path_;bool hasLegacy=valid&&oldVersion==1;
+  if(!hasLegacy&&std::filesystem::exists(suffix(path_,L".bak")))try{if(read(suffix(path_,L".bak"),config).sourceVersion==1){legacy=suffix(path_,L".bak");hasLegacy=true;}}catch(const std::exception&){}
+  if(hasLegacy&&!std::filesystem::exists(suffix(path_,L".v1"))&&!CopyFileW(legacy.c_str(),suffix(path_,L".v1").c_str(),TRUE))throw std::runtime_error("Cannot preserve original v1 save");
+  if(!valid&&std::filesystem::exists(path_)){auto invalid=suffix(path_,L".invalid");for(unsigned n=2;std::filesystem::exists(invalid);++n)invalid=suffix(path_,(L".invalid"+std::to_wstring(n)).c_str());if(!CopyFileW(path_.c_str(),invalid.c_str(),TRUE))throw std::runtime_error("Cannot preserve unreadable original save");}
   if(valid){auto backupTemp=suffix(path_,L".bak.tmp");if(!CopyFileW(path_.c_str(),backupTemp.c_str(),FALSE)||!MoveFileExW(backupTemp.c_str(),suffix(path_,L".bak").c_str(),MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH))throw std::runtime_error("Cannot update save backup");}
   if(!MoveFileExW(temp.c_str(),path_.c_str(),MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH))throw std::runtime_error("Cannot commit save file");
  }

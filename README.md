@@ -1,67 +1,85 @@
-# Mascota virtual — Misión 3
+# Mascota virtual — Misión 4
 
-Pato Conejo bebé jugable en Windows: cinco estadísticas, cuidados reales, sueño, expresiones, paneles y guardado. Conserva la habitación de Misión 2, pantalla lógica **240 × 240**, ventana **720 × 720**, escala entera y pixel art nítido. Núcleo C++17 portable; GDI/WIC sólo en el adaptador de escritorio.
+Juego C++17 para Windows, pantalla lógica **240 × 240** ampliada 3×. Conserva la habitación, las cinco necesidades y los seis cuidados de Misión 3. Añade cinco especies, nombres con tres botones, cuatro etapas, XP, cuidado histórico, evolución visual y partidas compatibles.
 
-La referencia original sigue pendiente. Los sprites se identifican como provisionales en el título de la ventana, fuera de la escena. No hay nuevas especies/evoluciones.
+**Todos los personajes siguen usando arte provisional.** Hay veinte formas diferenciadas, no sprites originales aprobados.
 
-## Ejecutar y compilar
+## Ejecutar
 
-Abrir `build\virtual_pet.exe`. Para compilar y ejecutar pruebas (Visual Studio con herramientas C++ y SDK Windows):
+Abrir `build\virtual_pet.exe`. Si hay partida aparece **Continuar / Nueva mascota**, elegible con izquierda/derecha y Enter. Sin partida comienza la selección de especie.
+
+- **Izquierda / derecha:** recorrer especies, caracteres u opciones.
+- **Enter:** aceptar. En el editor, se empieza en LISTO para usar el nombre sugerido.
+- Para editar: navegar por letras A–Z, números, espacio, guion, BORRAR, LISTO y VOLVER. BORRAR elimina el último carácter; LISTO termina; VOLVER permite elegir otra especie.
+- En la habitación se conservan Comida, Juegos, Dormir, Higiene, Salud y Estadísticas; el ratón también funciona.
+- **Salud** muestra resumen, XP, actividades, edad activa, cuidado histórico y tiempo fuera. Estadísticas muestra las cinco necesidades.
+
+Para ir directamente a selección, abrir **Nueva partida.cmd**. Cada nueva mascota crea otro archivo; no reemplaza las partidas anteriores. La última mascota elegida se recuerda al volver a ejecutar normalmente.
+
+## Probar evolución en menos de un minuto
+
+Abrir **Demo evoluciones.cmd**. Elegir especie y nombre. Alimentar, jugar y limpiar una vez con necesidades que puedan mejorar. Con el balance de prueba esas tres actividades permiten alcanzar adulto, pasando por cada efecto de evolución. Mientras dura el efecto, las acciones están bloqueadas; vuelve automáticamente a la habitación.
+
+La demo usa `config/evolution-demo.cfg`; el balance normal usa `config/evolution.cfg` y exige 1, 3 y 7 días **de juego activo acumulado**, además de XP, cuidado, actividades y felicidad. Esos valores son provisionales. No hay progreso de edad ni castigos por ausencia.
+
+## Compilar y probar
+
+Visual Studio con C++ y Windows SDK. No se instala software ni se necesita Python para jugar.
 
 ```bat
 build.cmd
-build\virtual_pet.exe
 ```
 
-No requiere Python ni descargas para jugar. `build.cmd` ejecuta las dos suites C++ y devuelve error si una falla. Pruebas opcionales de herramientas: `python tests\tools_tests.py` (Pillow ya disponible en el entorno de validación).
+Compila con C++17, /W4 /WX y ejecuta **core_tests, evolution_tests, multispecies_tests y assets_tests**. Pruebas opcionales: `python tests\tools_tests.py` (Pillow sólo para la herramienta de preparación). Generar recursos provisionales: `python tools\sprite_generator\generate_forms.py` (biblioteca estándar de Python).
 
-Alternativa CMake, no ejecutada aquí:
+También está validado con CMake:
 
 ```bat
-cmake -S . -B build-cmake
-cmake --build build-cmake --config Release
-ctest --test-dir build-cmake -C Release --output-on-failure
+cmake -S . -B build/cmake -G "Visual Studio 17 2022" -A x64
+cmake --build build/cmake --config Release
+ctest --test-dir build/cmake -C Release --output-on-failure
 ```
 
-## Jugar
+## Partidas y migración
 
-Izquierda/derecha seleccionan una de seis opciones; Enter confirma. El ratón también activa cada icono. En un panel, Enter vuelve; izquierda/derecha vuelven y cambian opción.
-
-- **Comida:** aumenta saciedad, reacción feliz y mensaje.
-- **Juegos:** aumenta felicidad y consume algo de energía, alimento e higiene.
-- **Dormir:** dormir/despertar; recupera energía progresivamente y despierta al estar descansado.
-- **Higiene:** limpia y aumenta felicidad.
-- **Salud:** resumen del estado y cuidados que ayudan a recuperarse.
-- **Estadísticas:** valores actuales y barras de las cinco necesidades.
-
-La mascota respira, pestañea, pasea con patas alternadas, se alegra, se entristece si necesita atención y duerme al agotarse. Las estadísticas cambian con el tiempo; siempre se puede recuperar, sin muerte permanente. En UI, **Saciedad alta significa estar bien alimentado**; corresponde a la variable interna hambre.
-
-## Configuración y partida
-
-Editar `config/gameplay.cfg` con el juego cerrado para cambiar rangos, valores iniciales, ritmo y efectos. Las tasas son porcentaje del rango por minuto; los efectos de acciones, puntos porcentuales. Ejemplo predeterminado: comida +25; juegos +20 felicidad/-8 energía; limpieza +35 higiene; sueño +25 energía por minuto. Detalles en docs/mision-3.md.
-
-Partida automática: `saves/pet.json`, ignorada por Git. Guarda nombre, etapa bebé, cinco estadísticas, última acción, timestamp y estado de sueño. Guardado diferido un segundo tras acciones, cada 30 s y al cerrar. Respaldo .bak y recuperación de datos válidos. No abrir dos instancias con el mismo archivo. No hay penalizaciones offline en esta misión.
+Las partidas nuevas se guardan en `saves/pet-2.json`, `pet-3.json`, etc. La anterior `saves/pet.json` se conserva. `saves/active-profile.txt` apunta a la actual; para abrir una anterior se puede indicar `--save`:
 
 ```bat
-build\virtual_pet.exe --assets-root "D:\Repositorio\Personal\python\mascota-app" --animation "assets/characters/pato_conejo/baby/placeholder/individual.anim" --save "D:\Repositorio\Personal\python\mascota-app\saves\prueba.json"
+build\virtual_pet.exe --save "saves\pet.json"
 ```
 
-La raíz de recursos se encuentra desde el ejecutable, sin depender del directorio actual. `--save` permite ensayos separados. Un cambio incompatible de rangos requiere un archivo de prueba nuevo; no se descarta una partida inválida en silencio. El nombre se conserva en JSON; todavía no hay editor de nombre en pantalla.
+Un JSON v1 se carga como Pato Conejo bebé conservando nombre, estadísticas, última acción, timestamp y sueño. En el primer guardado se escribe v2, con copia permanente `.v1` del original y respaldo `.bak`. Los archivos corruptos no se eliminan: si se recupera respaldo y se reemplaza un principal inválido, se conserva también como `.invalid`. Si no hay datos válidos, el juego informa el problema sin descartarlos.
 
-## Organización
+Para comprobar migración **sin tocar tu partida**, copiar `tests/fixtures/mision-3-v1.json` a un nombre libre bajo build/ y abrirlo con `--save`; elegir Continuar y cerrar normalmente. Verificar JSON versión 2 y copia `.v1`. Las pruebas de recursos ya comprueban ese flujo a disco automáticamente.
+
+No abrir dos instancias sobre el mismo archivo. El guardado se realiza al crear mascota, al evolucionar, al cerrar, tras confirmaciones y cada 30 s de juego. Las decisiones de XP y cooldown también se conservan.
+
+## Opciones
+
+```bat
+build\virtual_pet.exe --new-game --save "build\prueba-nueva.json" --evolution-config "config\evolution-demo.cfg"
+```
+
+`--new-game` fuerza selección y crea otro perfil si el destino ya existe. `--save` elige un archivo sin cambiar la selección global; el balance se elige por lanzamiento. `--assets-root` señala la raíz del proyecto. `--animation` conserva la compatibilidad del manifiesto alternativo del Pato Conejo bebé; las demás formas usan su propio directorio.
+
+## Módulos y documentación
 
 ```text
-core/pet/             stats.hpp (configuración), model.hpp (reglas/acciones)
-core/animation/       reproductor, clips, estados y eventos
-core/persistence/     Snapshot JSON versionado e interfaz IStorage
-platforms/desktop/    ventana/entradas, renderer, PNG, fuente y FileStore
-assets/characters/    placeholder bebé: idle, happy, walk, sad y sleep
-config/               gameplay.cfg y resumen de animaciones
-tools/                generador de placeholder y preparación supervisada
-tests/                lógica, recursos, persistencia y herramientas
-docs/                 arquitectura, misiones y validaciones
+core/evolution/       catálogo estable, requisitos y configuración
+core/ui/              editor de nombre compatible con tres botones
+core/pet/             necesidades, acciones, progreso y estados
+core/animation/       clips y reproductor sin Windows
+core/persistence/     Snapshot v2, lector v1/v2, contrato de almacenamiento
+platforms/desktop/    GDI/WIC, recursos por forma, perfiles, archivos y entradas
+assets/characters/   cinco especies × stage_01..stage_04 × seis clips
+config/               gameplay.cfg, evolution.cfg y evolution-demo.cfg
+tests/                cuatro suites C++, herramientas y fixture v1
+docs/                 arquitectura, evolución, migración y evidencia
 ```
 
-Cambios, decisiones, límites y parámetros: **docs/mision-3.md**. Evidencia de pruebas: **docs/validacion-mision-3.md**. El contrato de sprites y su preparación sigue en docs/animaciones.md y docs/preparacion-recursos.md; la Misión 3 amplía los clips y mueve la leyenda fuera de escena.
+- `docs/mision-4.md`: implementación, archivos y límites.
+- `docs/sistema-evolucion.md`: todos los valores y reglas de progreso.
+- `docs/migracion-partidas.md`: esquema, conservación y pruebas.
+- `docs/validacion-mision-4.md`: resultados reales y parte manual pendiente.
 
-Pendientes: referencia/sprites originales aprobados, ajustar el ritmo mediante juego real, sonido, editor de nombre y adaptación de hardware. No se implementan todavía otras formas.
+Pendientes: referencias originales, balance mediante juego real, selector de partidas anteriores, audio y firmware ESP32-S3. El núcleo no incluye Windows, pero el caché gráfico de escritorio no se puede trasladar sin adaptar su presupuesto de memoria.

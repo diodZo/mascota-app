@@ -10,6 +10,14 @@ cl /nologo /std:c++17 /EHsc /W4 /WX /utf-8 /Fo:build\tests.obj tests\core_tests.
 if errorlevel 1 exit /b 1
 build\core_tests.exe
 if errorlevel 1 exit /b 1
+cl /nologo /std:c++17 /EHsc /W4 /WX /utf-8 /Fo:build\evolution_tests.obj tests\evolution_tests.cpp /Fe:build\evolution_tests.exe
+if errorlevel 1 exit /b 1
+build\evolution_tests.exe
+if errorlevel 1 exit /b 1
+cl /nologo /std:c++17 /EHsc /W4 /WX /utf-8 /Fo:build\multispecies_tests.obj tests\multispecies_tests.cpp /Fe:build\multispecies_tests.exe
+if errorlevel 1 exit /b 1
+build\multispecies_tests.exe
+if errorlevel 1 exit /b 1
 cl /nologo /std:c++17 /EHsc /W4 /WX /utf-8 /Fo:build\desktop.obj platforms\desktop\main.cpp /Fe:build\virtual_pet.exe /link /SUBSYSTEM:WINDOWS user32.lib gdi32.lib windowscodecs.lib ole32.lib msimg32.lib shell32.lib
 if errorlevel 1 exit /b 1
 cl /nologo /std:c++17 /EHsc /W4 /WX /utf-8 /Fo:build\assets_tests.obj tests\assets_tests.cpp /Fe:build\assets_tests.exe /link user32.lib gdi32.lib windowscodecs.lib ole32.lib msimg32.lib

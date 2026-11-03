@@ -12,10 +12,18 @@ Guardado futuro: JSON versionado en PC con validaci贸n, temporal, vaciado y reem
 
 Errores de arranque y carga deben comunicarse en un punto del adaptador; no bloquear recuperaci贸n de mascota por datos corruptos. El prototipo valida clips; faltan todav铆a el sistema completo de errores y las pruebas de persistencia.
 
-## Actualizaci髇 Misi髇 2
+## Actualizaci贸n Misi贸n 2
 
-El dibujo procedural inicial ha sido reemplazado por PNG provisionales cargados por WIC. Model usa Library/AnimationManager portables; main.cpp no dibuja sprites ni UI. renderer.hpp y sprite_store.hpp son adaptadores Windows. Consulta animaciones.md y mision-2.md para el contrato actual. La planificaci髇 de estad韘ticas, tiempo offline, persistencia y firmware anterior sigue siendo futura.
+El dibujo procedural inicial ha sido reemplazado por PNG provisionales cargados por WIC. Model usa Library/AnimationManager portables; main.cpp no dibuja sprites ni UI. renderer.hpp y sprite_store.hpp son adaptadores Windows. Consulta animaciones.md y mision-2.md para el contrato actual. La planificaci贸n de estad铆sticas, tiempo offline, persistencia y firmware anterior sigue siendo futura.
 
-## Actualizaci髇 Misi髇 3
+## Actualizaci贸n Misi贸n 3
 
-Stats y Config controlan necesidades y tasas; Model controla acciones, mensajes y pantalla solicitada. Snapshot/IStorage son portables; FileStore implementa el JSON en Windows, coordinado desde main.cpp. Hay guardado m韓imo, sin pol韙ica offline. Los paneles dibujan valores del modelo y no alteran reglas. La habitaci髇 se mantiene. Contratos y validaci髇 actuales en mision-3.md y validacion-mision-3.md; los apartados anteriores reflejan el dise駉 de cada misi髇.
+Stats y Config controlan necesidades y tasas; Model controla acciones, mensajes y pantalla solicitada. Snapshot/IStorage son portables; FileStore implementa el JSON en Windows, coordinado desde main.cpp. Hay guardado m铆nimo, sin pol铆tica offline. Los paneles dibujan valores del modelo y no alteran reglas. La habitaci贸n se mantiene. Contratos y validaci贸n actuales en mision-3.md y validacion-mision-3.md; los apartados anteriores reflejan el dise帽o de cada misi贸n.
+
+## Misi贸n 4 integrada
+
+Cat谩logo/Settings en core/evolution; NameEditor en core/ui. Model conserva estad铆sticas/acciones y agrega edad activa, XP, cuidado hist贸rico, setup y efecto. Un evento de evoluci贸n solicita persistir inmediatamente; el renderer no modifica reglas. El banco de clips usa claves especie.etapa.animaci贸n y vive m谩s que AnimationManager, evitando referencias invalidadas al evolucionar.
+
+Snapshot v2 conserva progreso y lee v1; FileStore protege original v1/respaldos/principales corruptos. Profiles separa partidas nuevas del perfil anterior y recuerda la actual. Main coordina entradas, reloj, recursos y almacenamiento; core no incluye Windows. La ausencia s贸lo se registra, no avanza edad ni penaliza.
+
+FormResources resuelve por clip y valida antes de usar; puede recurrir a formas provisionales o s铆mbolos sin cerrar el juego. El cach茅 RGBA de escritorio precarga todo: en ESP32 se requiere otro adaptador con carga de forma activa y presupuesto medido. Contratos y l铆mites actuales: sistema-evolucion.md, migracion-partidas.md y mision-4.md.

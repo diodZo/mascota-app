@@ -9,6 +9,12 @@
 
 Puerta de salida inicial: build correcto, pruebas sin ventana correctas, ventana con mascota animada y comprobación de izquierda/Enter/derecha. Las fases 3–6 no forman parte de la primera misión.
 
-## Avance Misi�n 3
+## Avance Misión 3
 
-Completada una parte funcional de la fase 3: necesidades configurables, seis acciones/paneles, reloj de sesi�n, guardado m�nimo y cinco animaciones provisionales. No est�n implementados audio, inventario, evoluci�n, otras especies ni pol�tica offline. La siguiente iteraci�n propuesta es ajustar el ritmo con pruebas de juego y sustituir arte al recibir referencias.
+Completada una parte funcional de la fase 3: necesidades configurables, seis acciones/paneles, reloj de sesión, guardado mínimo y cinco animaciones provisionales. No están implementados audio, inventario, evolución, otras especies ni política offline. La siguiente iteración propuesta es ajustar el ritmo con pruebas de juego y sustituir arte al recibir referencias.
+
+## Avance Misión 4
+
+Integrados catálogo, selección, nombre, XP, cuidado histórico, edad activa, reglas externas, cuatro etapas, efecto y migración v1 a v2. Veinte formas provisionales y fallback seguro. Cuatro suites C++ y herramientas pasan; se observó evolución hasta adulto con balance de prueba. La restauración del adulto real se comprobó sin ventana; la comprobación visual de reinicio quedó pendiente al detener el usuario Computer Use.
+
+Próximos pasos: esa revisión visual cuando se autorice usar el equipo, balance con sesiones reales, referencias y sprites originales, selector de perfiles anteriores y estudio de memoria/almacenamiento del adaptador ESP32. No se presenta firmware como probado ni se hacen publicaciones o merges.

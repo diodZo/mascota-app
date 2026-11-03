@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "NUBE",
+  "stage": 1,
+  "stats": [65, 70, 70, 75, 90],
+  "last_action": 2,
+  "saved_at": 1793723746,
+  "sleeping": true
+}

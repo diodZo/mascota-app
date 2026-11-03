@@ -22,9 +22,19 @@ class Renderer {
 public:
  explicit Renderer(SpriteStore& sprites):sprites_(sprites){surface_=CreateCompatibleDC(nullptr);BITMAPINFO info{};info.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);info.bmiHeader.biWidth=240;info.bmiHeader.biHeight=-240;info.bmiHeader.biPlanes=1;info.bmiHeader.biBitCount=32;void* data=nullptr;bitmap_=CreateDIBSection(surface_,&info,DIB_RGB_COLORS,&data,nullptr,0);if(!surface_||!bitmap_){if(bitmap_)DeleteObject(bitmap_);if(surface_)DeleteDC(surface_);throw std::runtime_error("Cannot create 240x240 renderer");}previous_=SelectObject(surface_,bitmap_);}
  ~Renderer(){SelectObject(surface_,previous_);DeleteObject(bitmap_);DeleteDC(surface_);}
- void render(const pet::Model& model){auto dc=surface_;
-  rect(dc,0,0,240,240,Cream);rect(dc,0,0,240,27,Purple);text(dc,model.name(),9,10,Cream);heart(dc,164,8,model.percent(pet::Stat::Health)<model.config().lowPercent?RGB(213,204,219):RGB(250,183,167));text(dc,"BEBE",184,10,Cream);
-  rect(dc,8,34,224,140,Ink);rect(dc,10,36,220,136,RGB(218,235,226));
+ void drawPet(const pet::Model& model,int x,int y){
+  if(!model.sprite().image.empty())sprites_.draw(surface_,model.sprite(),x,y,model.mirrored());
+  else{const COLORREF colors[]={RGB(255,224,151),RGB(238,177,164),RGB(112,197,216),RGB(188,172,225),RGB(126,198,174)};rect(surface_,x+5,y+9,54,48,Ink);rect(surface_,x+7,y+11,50,44,colors[unsigned(model.species())%5]);text(surface_,std::string(pet::evolution::speciesInfo(model.species()).symbol),x+17,y+23);text(surface_,"E"+std::to_string(model.visualStage()),x+25,y+39);}
+ }
+ void setup(const pet::Model& model){auto dc=surface_;rect(dc,0,0,240,240,Cream);rect(dc,0,0,240,27,Purple);
+  if(model.screen()==pet::Screen::Start){centered(dc,"TU MASCOTA",10,Cream);centered(dc,model.name(),48);drawPet(model,88,68);centered(dc,model.startChoice()==0?"> CONTINUAR <":"> NUEVA MASCOTA <",151,Purple);centered(dc,"CADA MASCOTA TIENE SU PARTIDA",169);}
+  else if(model.screen()==pet::Screen::Species){centered(dc,"ELIGE TU MASCOTA",10,Cream);centered(dc,std::string(pet::evolution::speciesInfo(model.species()).displayName),44,Purple);drawPet(model,88,72);centered(dc,std::to_string(model.speciesCursor()+1)+" / "+std::to_string(pet::evolution::Catalog.size()),150);centered(dc,"VISTA PROVISIONAL",167);}
+  else{centered(dc,"COMO ME LLAMO",10,Cream);centered(dc,model.nameEditor().value(),55,Purple);centered(dc,"< "+model.nameEditor().token()+" >",100);centered(dc,"LETRAS - BORRAR - LISTO",132);centered(dc,"LISTO USA EL NOMBRE ACTUAL",150);centered(dc,"VOLVER CAMBIA LA ESPECIE",166);}
+  for(int i=0;i<3;++i)rect(dc,7+i*78,187,70,29,Purple);text(dc,"<",38,198,Cream);text(dc,"ACEPTAR",99,198,Cream);text(dc,">",194,198,Cream);centered(dc,"IZQUIERDA - ENTER - DERECHA",228);
+ }
+ void render(const pet::Model& model){if(model.screen()==pet::Screen::Start||model.screen()==pet::Screen::Species||model.screen()==pet::Screen::Name){setup(model);return;}auto dc=surface_;
+  rect(dc,0,0,240,240,Cream);rect(dc,0,0,240,27,Purple);text(dc,model.name(),9,10,Cream);heart(dc,164,8,model.percent(pet::Stat::Health)<model.config().lowPercent?RGB(213,204,219):RGB(250,183,167));text(dc,"E "+std::to_string(model.visualStage()),184,10,Cream);centered(dc,std::string(pet::evolution::speciesInfo(model.species()).displayName)+" - "+std::string(pet::evolution::stageName(model.species(),pet::evolution::Stage(model.visualStage()))),28,Purple);
+  rect(dc,8,38,224,136,Ink);rect(dc,10,40,220,132,RGB(218,235,226));
   // Pixel room: wallpaper, framed window, shelf and a plant.
   for(int y=42;y<132;y+=13)for(int x=17;x<228;x+=16)rect(dc,x,y,1,2,RGB(188,212,199));
   rect(dc,22,48,53,53,RGB(153,132,118));rect(dc,25,51,47,47,RGB(173,214,231));
@@ -34,9 +44,9 @@ public:
   rect(dc,10,145,220,27,RGB(202,173,143));rect(dc,10,142,220,3,RGB(153,132,118));
   for(int y=148;y<173;y+=10){rect(dc,10,y,220,1,RGB(182,151,128));for(int x=24+(y%3)*13;x<230;x+=48)rect(dc,x,y,1,(172-y<10?172-y:10),RGB(182,151,128));}
   rect(dc,model.x()+10,153,44,3,RGB(174,146,130));
-  sprites_.draw(dc,model.sprite(),model.x(),94,model.mirrored());
+  drawPet(model,model.x(),94);
   if(model.sleeping())text(dc,"Z",model.x()+54,93-int(model.frame())*3,Purple);
-  if(model.screen()!=pet::Screen::Room){
+  if(model.screen()==pet::Screen::Health||model.screen()==pet::Screen::Stats){
    rect(dc,17,41,206,116,Ink);rect(dc,19,43,202,112,Cream);
    if(model.screen()==pet::Screen::Stats){
     centered(dc,"MIS NECESIDADES",48,Purple);
@@ -45,9 +55,14 @@ public:
      rect(dc,27,y+9,180,3,RGB(222,211,190));rect(dc,27,y+9,int(model.percent(stat)*1.8),3,model.percent(stat)<model.config().lowPercent?RGB(198,115,105):RGB(113,153,120));}
    }else{
     centered(dc,"MI SALUD",49,Purple);centered(dc,model.healthSummary(),67);centered(dc,"SALUD "+std::to_string(int(std::lround(model.percent(pet::Stat::Health))))+" / 100",85);
-    centered(dc,"COMIDA LIMPIEZA Y SUENO",106);centered(dc,"ME AYUDAN A RECUPERARME",119);
+    centered(dc,"XP "+std::to_string(model.experience())+" - ACT "+std::to_string(model.activities()),101);centered(dc,"EDAD "+std::to_string(uint64_t(model.ageMinutes()))+" MIN",114);centered(dc,"CUIDADO "+std::to_string(int(model.care()))+" / 100",126);centered(dc,"FUERA "+std::to_string(model.offlineMinutes())+" MIN",137);
    }
    centered(dc,"ENTER PARA VOLVER",146,Purple);
+  }
+  if(model.screen()==pet::Screen::Evolution){
+   if((model.evolutionElapsed()/180)%2==0){rect(dc,18,65,5,5,Cream);rect(dc,211,101,5,5,Cream);rect(dc,180,54,4,4,Cream);}
+   centered(dc,model.evolutionElapsed()<1500?"ESTOY CRECIENDO":"MI NUEVA FORMA",49,Purple);
+   rect(dc,0,181,240,59,Cream);centered(dc,"FELICIDADES!",192,Purple);centered(dc,std::string(pet::evolution::stageName(model.species(),pet::evolution::Stage(model.stage()))),209);centered(dc,"VOLVEMOS EN UN MOMENTO",228);return;
   }
   rect(dc,11,160,218,11,RGB(245,233,205));centered(dc,model.message(),162,RGB(114,91,85));
   for(unsigned i=0;i<6;++i){int x=10+int(i)*37;bool selected=i==model.selected();rect(dc,x,182,35,31,selected?Purple:RGB(231,220,196));if(selected){rect(dc,x+1,183,33,29,Purple);}icon(dc,i,x+7,189,selected?Cream:Ink);}

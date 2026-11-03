@@ -1,0 +1,49 @@
+petanim 1
+# All frames are provisional, no reference supplied.
+clip idle 4 1
+frame "assets/characters/pato_conejo/stage_01/placeholder/idle.png" 0 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/idle.png" 64 0 64 64 0 -1
+frame "assets/characters/pato_conejo/stage_01/placeholder/idle.png" 128 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/idle.png" 192 0 64 64 0 -1
+frame "assets/characters/pato_conejo/stage_01/placeholder/idle.png" 256 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/idle.png" 320 0 64 64 0 -1
+frame "assets/characters/pato_conejo/stage_01/placeholder/idle.png" 384 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/idle.png" 448 0 64 64 0 -1
+frame "assets/characters/pato_conejo/stage_01/placeholder/idle.png" 512 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/idle.png" 576 0 64 64 0 -1
+frame "assets/characters/pato_conejo/stage_01/placeholder/idle.png" 640 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/idle.png" 704 0 64 64 0 -1
+frame "assets/characters/pato_conejo/stage_01/placeholder/idle.png" 768 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/idle.png" 832 0 64 64 0 -1
+frame "assets/characters/pato_conejo/stage_01/placeholder/idle.png" 896 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/idle.png" 960 0 64 64 0 -1
+end
+clip happy 8 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/happy.png" 0 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/happy.png" 64 0 64 64 0 -3
+frame "assets/characters/pato_conejo/stage_01/placeholder/happy.png" 128 0 64 64 0 -7
+frame "assets/characters/pato_conejo/stage_01/placeholder/happy.png" 192 0 64 64 0 -8
+frame "assets/characters/pato_conejo/stage_01/placeholder/happy.png" 256 0 64 64 0 -4
+frame "assets/characters/pato_conejo/stage_01/placeholder/happy.png" 320 0 64 64 0 0
+end
+clip walk 8 1
+frame "assets/characters/pato_conejo/stage_01/placeholder/walk.png" 0 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/walk.png" 64 0 64 64 0 -1
+frame "assets/characters/pato_conejo/stage_01/placeholder/walk.png" 128 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/walk.png" 192 0 64 64 0 -1
+end
+clip sad 2 1
+frame "assets/characters/pato_conejo/stage_01/placeholder/sad.png" 0 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/sad.png" 64 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/sad.png" 128 0 64 64 0 0
+end
+clip eat 6 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/eat.png" 0 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/eat.png" 64 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/eat.png" 128 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/eat.png" 192 0 64 64 0 0
+end
+clip sleep 1 1
+frame "assets/characters/pato_conejo/stage_01/placeholder/sleep.png" 0 0 64 64 0 0
+frame "assets/characters/pato_conejo/stage_01/placeholder/sleep.png" 64 0 64 64 0 -1
+end
