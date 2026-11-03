@@ -1,0 +1,43 @@
+{
+  "schema_version": 2,
+  "placeholder": true,
+  "frame_width": 64,
+  "frame_height": 64,
+  "anchor": [
+    32,
+    60
+  ],
+  "runtime_manifest": "assets/characters/pato_conejo/baby/placeholder/pet.anim",
+  "animations": {
+    "idle": {
+      "frames": 16,
+      "fps": 4,
+      "loop": true,
+      "sheet": "idle.png"
+    },
+    "happy": {
+      "frames": 6,
+      "fps": 8,
+      "loop": false,
+      "sheet": "happy.png"
+    },
+    "walk": {
+      "frames": 4,
+      "fps": 8,
+      "loop": true,
+      "sheet": "walk.png"
+    },
+    "sad": {
+      "frames": 3,
+      "fps": 2,
+      "loop": true,
+      "sheet": "sad.png"
+    },
+    "sleep": {
+      "frames": 2,
+      "fps": 1,
+      "loop": true,
+      "sheet": "sleep.png"
+    }
+  }
+}
